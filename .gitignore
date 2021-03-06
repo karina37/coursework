@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# I don't know what it is, but it bothers me
+.idea/**/*.xml
