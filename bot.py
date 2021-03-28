@@ -14,6 +14,7 @@ from pony import orm
 def start(update, context):
     update.message.reply_text('Привет!')
 
+
 @db_session
 def help_command(update, context):
     keys = context.args
