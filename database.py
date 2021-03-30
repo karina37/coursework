@@ -3,9 +3,11 @@
 
 
 from pony.orm import *
-from pony import orm
+# from pony import orm
 from datetime import datetime
 
+
+date_format = '%d.%m.%y %H:%M:%S'
 
 mems = {
     'кот': [
@@ -338,7 +340,7 @@ movies = {
     ]
 }
 
-play = {
+play_1 = {
     # TODO
     'text0': 'text in messange0',
     'play1': {
@@ -369,7 +371,7 @@ play = {
     'play2': {}
 }
 
-play_1 = {
+play_plot = {
     1: [
         'Вы просыпаетесь в тёмном лесу и не видите ничего дальше вытянутой руки',
         [
@@ -854,6 +856,17 @@ play_1 = {
 }
 
 
+users = {
+        393396177
+    }
+
+admins = {
+    393396177
+}
+
+
+
+
 def parsing_rbc():
     # TODO
     pass
@@ -862,64 +875,98 @@ def parsing_rbc():
 db = Database()
 
 
-@db_session
 class Mem(db.Entity):
     topic = Required(str)
     link = Required(str)
     date = Required(str)
 
 
-@db_session
 class Music(db.Entity):
     singer = Required(str)
     link = Required(str)
     date = Required(str)
 
 
-@db_session
 class Command(db.Entity):
     name = Required(str)
     help = Required(str)
     date = Required(str)
 
 
-db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
+class User(db.Entity):
+    chat_id = Required(int)
+    admin = Required(bool)
+    play = Required(bool)
+    play_plot = Required(int)
+    date = Required(str)
 
+
+db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
+set_sql_debug(True)
 db.generate_mapping(create_tables=True)
 
-set_sql_debug(True)
 
 
 @db_session
-def add_mems():
-    links = set(db.select("select link from Mem"))
+def add_users(users: set):
+
+    old_users = set(select(user.chat_id for user in User))
+    old_admins = set(select(user.chat_id for user in User if user.admin == True))
+
+    for user in users | admins:
+        if user not in old_users:
+            old_users.add(user)
+            if user in admins:
+                admin = True
+                old_admins.add(user)
+            elif user in old_admins:
+                admin = True
+            else:
+                admin = False
+            User(chat_id=user, admin=admin, play=False, play_plot=0, date=datetime.now().strftime(date_format))
+
+
+@db_session
+def add_mems(mems: dict):
+    links = set(select(mem.link for mem in Mem))
     for topic in mems.keys():
         for link in mems[topic]:
             if link not in links:
-                Mem(topic=topic, link=link, date=datetime.now().strftime("%d.%m.%y %H:%M:%S"))
+                Mem(topic=topic, link=link, date=datetime.now().strftime(date_format))
                 links.add(link)
 
 
 @db_session
-def add_music():
-    links = set(db.select("select link from Music"))
+def add_music(music: dict):
+    links = set(select(music.link for music in Music))
     for singer in music.keys():
         for link in music[singer]:
             if link not in links:
-                Music(singer=singer, link=link, date=datetime.now().strftime("%d.%m.%y %H:%M:%S"))
+                Music(singer=singer, link=link, date=datetime.now().strftime(date_format))
                 links.add(link)
 
 
 @db_session
-def add_commands():
-    names = set(db.select("select name from Command"))
-    for command in commands.keys():
-        if command not in names:
-            Command(name=command, help=commands[command], date=datetime.now().strftime("%d.%m.%y %H:%M:%S"))
+def add_commands(commands: dict):
+    old_names = set(select(command.name for command in Command))
+
+    for name in commands.keys():
+        old_help = get(com.help for com in Command if com.name == name)
+
+        if name not in old_names:
+            old_names.add(name)
+            Command(name=name, help=commands[name], date=datetime.now().strftime(date_format))
+        else:
+            if commands[name] != old_help:
+                key = get(com.id for com in Command if com.name == name)
+                Command[key].help = commands[name]
+                Command[key].date = datetime.now().strftime(date_format)
 
 
-add_mems()
-add_music()
-add_commands()
+
+add_mems(mems)
+add_music(music)
+add_commands(commands)
+add_users(users)
 
 commit()
