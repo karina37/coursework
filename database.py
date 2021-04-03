@@ -9,7 +9,7 @@ from config import admins
 
 date_format = '%d.%m.%y %H:%M:%S'
 
-mems = {
+memes = {
     'кот': [
         'https://mr-mem.ru/images/memes/mem-s-kotom-za-stolom.jpg',
         'https://i.pinimg.com/originals/db/20/3c/db203c1a9db65785b67551a15ccb9c1a.jpg',
@@ -30,7 +30,7 @@ mems = {
         'https://preview.redd.it/5xhbxd23u8s31.jpg?auto=webp&s=7232a43c94f588871e58b1bab33ae13806db2b03',
         'https://i.pinimg.com/originals/d2/8c/9a/d28c9a3fe7d91834d4959c1ece050b47.jpg'
     ],
-    'random': [
+    'другое': [
         'https://i.redd.it/e2ilh7ik4el61.jpg',
         'https://i.redd.it/xjwnfagrmcl61.png',
         'https://i.redd.it/a8ln26mixcl61.jpg',
@@ -297,7 +297,7 @@ music = {
         'https://open.spotify.com/track/2fP2RBX81C55kEBaHZHomY?si=gXVolKdIQbC-7K8KgO_-Cg',
         'https://open.spotify.com/track/06jEcxzahUi9GdN5RFsqO4?si=-FAYsXMFTLWZcOr24YL1SA'
     ],
-    'random': [
+    'другое': [
         'https://open.spotify.com/track/5P7FwhkLQp2HrfR79pYDj5?si=8PVRJg7CSmuiSpbOZsBVqA',
         'https://open.spotify.com/track/21A3Yv2ifXxtoM03Sc0IDM?si=ajeZDQtQROOXiH7Lu6IvnA',
         'https://open.spotify.com/track/7ikRId3U9AXd6tfF2fbItC?si=O3IicJBFRwOT5vDdPk5wKA',
@@ -324,9 +324,9 @@ music = {
 
 commands = {
     # TODO
-    'mem': '"help for mem"',
-    'music': '"help for music"',
-    'movie': '"help for movie"'
+    'mem': 'Чтобы получить рандомный мем, отправьте «/mem». Чтобы получить мем по какой-либо тематике, введите «/mem <название_темы> <ещё_названия_тем>». Если у меня есть мем с желаемой тематикой, то я его Вам пришлю',
+    'music': 'Чтобы получить рандомно песню, отправьте «/music». Чтобы получить песню какого-то исполнителя, введите «/music <исполнитель> <ещё_исполнители>». Если у меня есть песня желаемого исполнителя, то я её Вам пришлю',
+    'movie': 'Чтобы получить ссылку на поиск фильмов, отправьте «/music”'
 }
 
 movies = {
@@ -877,7 +877,7 @@ def parsing_rbc():
 db = Database()
 
 
-class Mem(db.Entity):
+class Meme(db.Entity):
     topic = Required(str)
     link = Required(str)
     date = Required(str)
@@ -923,24 +923,24 @@ def add_users(users: set):  # {chat_id}
 
 
 @db_session
-def add_mems(mems: dict):  # {'topic': ['link']}
-    old_links = set(select(mem.link for mem in Mem))
+def add_memes(memes: dict):  # {'topic': ['link']}
+    old_links = set(select(meme.link for meme in Meme))
 
-    for topic in mems.keys():
-        for link in mems[topic]:
+    for topic in memes.keys():
+        for link in memes[topic]:
             if link not in old_links:
-                Mem(topic=topic, link=link, date=datetime.now().strftime(date_format))
+                Meme(topic=topic, link=link, date=datetime.now().strftime(date_format))
                 old_links.add(link)
 
 
 @db_session
-def delete_mems(links: set):  # {'link'}
-    old_links = set(select(mem.link for mem in Mem))
+def delete_memes(links: set):  # {'link'}
+    old_links = set(select(meme.link for meme in Meme))
 
     for link in links:
         if link in old_links:
             old_links.remove(link)
-            delete(mem for mem in Mem if mem.link == link)
+            delete(meme for meme in Meme if meme.link == link)
 
 
 @db_session
@@ -982,7 +982,7 @@ def add_commands(commands: dict):  # {'name': 'help'}
                 Command[key].date = datetime.now().strftime(date_format)
 
 
-add_mems(mems)
+add_memes(memes)
 add_music(music)
 add_commands(commands)
 add_users(admins)
