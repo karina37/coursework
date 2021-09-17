@@ -191,15 +191,9 @@ def movies(update: Update, context: CallbackContext) -> None:
     Temporarily send a message that the command is in development."""
     update.message.reply_text('Работа в процессе. Вы можете поддержать проект: ')
     context.bot.send_contact(
-        phone_number='+79854127639',
-        first_name='Максим',
-        last_name='Колодин',
-        chat_id=update.message.chat_id
-    )
-    context.bot.send_contact(
-        phone_number='+79373182082',
-        first_name='Карина',
-        last_name='Гордеева',
+        phone_number='phone number',
+        first_name='Name',
+        last_name='Firname',
         chat_id=update.message.chat_id
     )
 
