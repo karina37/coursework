@@ -2,8 +2,8 @@
 # coding: utf-8
 
 
-TOKEN = '1792900529:AAGlGAA9mthV0F5S4Vsl4zFps7Dwlw2osiE'
+TOKEN = 'TOKEN'
 
 admins = {
-    393396177
+    
 }
