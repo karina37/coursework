@@ -129,5 +129,4 @@ dmypy.json
 .pyre/
 
 # I don't know what it is, but it bothers me
-.idea/**/*.xml
-.idea/**/*.iml
+.idea*

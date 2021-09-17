@@ -865,10 +865,6 @@ play_plot = {
 
 
 
-
-
-
-
 def parsing_rbc():
     # TODO
     pass
